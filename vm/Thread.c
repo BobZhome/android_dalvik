@@ -52,6 +52,12 @@ pid_t gettid() { return syscall(__NR_gettid);}
 #undef __KERNEL__
 #endif
 
+#ifdef SIGSTKFLT
+#define DVM_SIGKILLTHREAD SIGSTKFLT
+#else
+#define DVM_SIGKILLTHREAD SIGSEGV
+#endif
+
 // Change this to enable logging on cgroup errors
 #define ENABLE_CGROUP_ERR_LOGGING 0
 
@@ -3742,12 +3748,12 @@ void dvmNukeThread(Thread* thread)
     LOGD("threadid=%d: sending two SIGSTKFLTs to threadid=%d (tid=%d) to"
          " cause debuggerd dump\n",
         dvmThreadSelf()->threadId, thread->threadId, thread->systemTid);
-    killResult = pthread_kill(thread->handle, SIGSTKFLT);
+    killResult = pthread_kill(thread->handle, DVM_SIGKILLTHREAD);
     if (killResult != 0) {
         LOGD("NOTE: pthread_kill #1 failed: %s\n", strerror(killResult));
     }
     usleep(2 * 1000 * 1000);    // TODO: timed-wait until debuggerd attaches
-    killResult = pthread_kill(thread->handle, SIGSTKFLT);
+    killResult = pthread_kill(thread->handle, DVM_SIGKILLTHREAD);
     if (killResult != 0) {
         LOGD("NOTE: pthread_kill #2 failed: %s\n", strerror(killResult));
     }
