@@ -15,22 +15,25 @@
 LOCAL_PATH:= $(call my-dir)
 
 dex_src_files := \
-	CmdUtils.c \
-	DexCatch.c \
-	DexClass.c \
-	DexDataMap.c \
-	DexFile.c \
-	DexInlines.c \
-	DexOptData.c \
-	DexProto.c \
-	DexSwapVerify.c \
-	InstrUtils.c \
-	Leb128.c \
-	OpCodeNames.c \
-	OptInvocation.c \
-	sha1.c \
-	SysUtil.c \
-	ZipArchive.c
+	CmdUtils.cpp \
+	DexCatch.cpp \
+	DexClass.cpp \
+	DexDataMap.cpp \
+	DexDebugInfo.cpp \
+	DexFile.cpp \
+	DexInlines.cpp \
+	DexOptData.cpp \
+	DexOpcodes.cpp \
+	DexProto.cpp \
+	DexSwapVerify.cpp \
+	DexUtf.cpp \
+	InstrUtils.cpp \
+	Leb128.cpp \
+	OptInvocation.cpp \
+	sha1.cpp \
+	SysUtil.cpp \
+	ZipArchive.cpp \
+	OpCodeNames.cpp
 
 dex_include_files := \
 	dalvik \
@@ -46,6 +49,7 @@ dex_include_files := \
 ifneq ($(SDK_ONLY),true)  # SDK_only doesn't need device version
 
 include $(CLEAR_VARS)
+#LOCAL_CFLAGS += -UNDEBUG -DDEBUG=1
 LOCAL_SRC_FILES := $(dex_src_files)
 LOCAL_C_INCLUDES += $(dex_include_files)
 LOCAL_MODULE_TAGS := optional

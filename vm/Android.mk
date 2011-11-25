@@ -43,11 +43,6 @@ host_smp_flag := -DANDROID_SMP=1
 include $(LOCAL_PATH)/ReconfigureDvm.mk
 
 # Overwrite default settings
-ifneq ($(TARGET_ARCH),x86)
-ifeq ($(TARGET_SIMULATOR),false)
-    LOCAL_PRELINK_MODULE := true
-endif
-endif
 LOCAL_MODULE_TAGS := optional
 LOCAL_MODULE := libdvm
 LOCAL_CFLAGS += $(target_smp_flag)
@@ -62,7 +57,7 @@ ifeq ($(WITH_JIT),true)
     include $(LOCAL_PATH)/ReconfigureDvm.mk
 
     # Enable assertions and JIT-tuning
-    LOCAL_CFLAGS += -DNDEBUG -DDEBUG=1 -DLOG_NDEBUG=1 -DWITH_DALVIK_ASSERT \
+    LOCAL_CFLAGS += -UNDEBUG -DDEBUG=1 -DLOG_NDEBUG=1 -DWITH_DALVIK_ASSERT \
                     -DWITH_JIT_TUNING $(target_smp_flag)
     LOCAL_MODULE := libdvm_assert
     include $(BUILD_SHARED_LIBRARY)
@@ -72,12 +67,12 @@ ifeq ($(WITH_JIT),true)
     include $(LOCAL_PATH)/ReconfigureDvm.mk
 
     # Enable assertions and JIT self-verification
-    LOCAL_CFLAGS += -DNDEBUG -DDEBUG=1 -DLOG_NDEBUG=1 -DWITH_DALVIK_ASSERT \
+    LOCAL_CFLAGS += -UNDEBUG -DDEBUG=1 -DLOG_NDEBUG=1 -DWITH_DALVIK_ASSERT \
                     -DWITH_SELF_VERIFICATION $(target_smp_flag)
     LOCAL_MODULE := libdvm_sv
     include $(BUILD_SHARED_LIBRARY)
 
-    # Devivation #3
+    # Derivation #3
     # Compile out the JIT
     WITH_JIT := false
     include $(LOCAL_PATH)/ReconfigureDvm.mk
@@ -101,8 +96,8 @@ ifeq ($(WITH_HOST_DALVIK),true)
     dvm_arch := $(HOST_ARCH)
     # Note: HOST_ARCH_VARIANT isn't defined.
     dvm_arch_variant := $(HOST_ARCH)
-    dvm_simulator := false
 
+    WITH_JIT := false
     include $(LOCAL_PATH)/Dvm.mk
 
     LOCAL_SHARED_LIBRARIES += libcrypto libssl libicuuc libicui18n
@@ -116,7 +111,7 @@ ifeq ($(WITH_HOST_DALVIK),true)
     # Build as a WHOLE static library so dependencies are available at link
     # time. When building this target as a regular static library, certain
     # dependencies like expat are not found by the linker.
-    LOCAL_WHOLE_STATIC_LIBRARIES += libexpat libcutils libdex liblog libnativehelper libutils libz
+    LOCAL_WHOLE_STATIC_LIBRARIES += libexpat libcutils libdex liblog libnativehelper libz
 
     # The libffi from the source tree should never be used by host builds.
     # The recommendation is that host builds should always either
@@ -133,5 +128,17 @@ ifeq ($(WITH_HOST_DALVIK),true)
     LOCAL_MODULE := libdvm
 
     include $(BUILD_HOST_SHARED_LIBRARY)
+
+    # Copy the dalvik shell script to the host's bin directory
+    include $(CLEAR_VARS)
+    LOCAL_IS_HOST_MODULE := true
+    LOCAL_MODULE_TAGS := optional
+    LOCAL_MODULE_CLASS := EXECUTABLES
+    LOCAL_MODULE := dalvik
+    include $(BUILD_SYSTEM)/base_rules.mk
+$(LOCAL_BUILT_MODULE): $(LOCAL_PATH)/dalvik | $(ACP)
+	@echo "Copy: $(PRIVATE_MODULE) ($@)"
+	$(copy-file-to-new-target)
+	$(hide) chmod 755 $@
 
 endif

@@ -18,6 +18,7 @@ subdirs := $(addprefix $(LOCAL_PATH)/,$(addsuffix /Android.mk, \
 		libdex \
 		vm \
 		dalvikvm \
+		dexgen \
 		dexlist \
 		dexopt \
 		dexdump \
@@ -25,6 +26,7 @@ subdirs := $(addprefix $(LOCAL_PATH)/,$(addsuffix /Android.mk, \
 		dx \
 		libnativehelper \
 		tools \
+		unit-tests \
 	))
 
 include $(subdirs)

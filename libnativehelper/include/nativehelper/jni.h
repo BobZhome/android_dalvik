@@ -21,8 +21,8 @@
  * Everything here is expected to be VM-neutral.
  */
 
-#ifndef _JNI_H
-#define _JNI_H
+#ifndef JNI_H_
+#define JNI_H_
 
 #include <stdarg.h>
 
@@ -1116,12 +1116,16 @@ jint JNI_GetDefaultJavaVMInitArgs(void*);
 jint JNI_CreateJavaVM(JavaVM**, JNIEnv**, void*);
 jint JNI_GetCreatedJavaVMs(JavaVM**, jsize, jsize*);
 
+#define JNIIMPORT
+#define JNIEXPORT  __attribute__ ((visibility ("default")))
+#define JNICALL
+
 /*
  * Prototypes for functions exported by loadable shared libs.  These are
  * called by JNI, not provided by JNI.
  */
-jint JNI_OnLoad(JavaVM* vm, void* reserved);
-void JNI_OnUnload(JavaVM* vm, void* reserved);
+JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved);
+JNIEXPORT void JNI_OnUnload(JavaVM* vm, void* reserved);
 
 #ifdef __cplusplus
 }
@@ -1147,9 +1151,4 @@ void JNI_OnUnload(JavaVM* vm, void* reserved);
 #define JNI_COMMIT      1           /* copy content, do not free buffer */
 #define JNI_ABORT       2           /* free buffer w/o copying back */
 
-/* need these for Windows-aware headers */
-#define JNIIMPORT
-#define JNIEXPORT
-#define JNICALL
-
-#endif /*_JNI_H*/
+#endif  /* JNI_H_ */
